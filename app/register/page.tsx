@@ -11,9 +11,9 @@ export default function RegisterPage() {
   const [currentAmount, setCurrentAmount] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
-  const noteInputRef = useRef<HTMLInputElement>(null)
-  const hiddenAmountInputRef = useRef<HTMLInputElement>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null!)
+  const noteInputRef = useRef<HTMLInputElement>(null!)
+  const hiddenAmountInputRef = useRef<HTMLInputElement>(null!)
 
   const focusInput = (ref: React.RefObject<HTMLInputElement>) => {
     setTimeout(() => {
