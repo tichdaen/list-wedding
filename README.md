@@ -47,3 +47,29 @@ create table public.contributions (
   created_at timestamp with time zone default timezone('Asia/Seoul'::text, now())
 );
 ```
+
+### 트리거 ID 와 Display Order 같게 
+```sql
+create or replace function set_display_order()
+returns trigger as $$
+begin
+  NEW.display_order := NEW.id;
+  return NEW;
+end;
+$$ language plpgsql;
+
+create trigger set_display_order_trigger
+before insert on contributions
+for each row
+execute function set_display_order();
+```
+
+### Sequence 초기화
+```sql
+ALTER SEQUENCE contributions_id_seq RESTART WITH 1;
+```
+
+```sql
+SELECT SUM(amount) from contributions
+WHERE id > 20
+```
