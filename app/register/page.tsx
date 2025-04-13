@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase'
 import { useState, useRef } from 'react'
+import ProtectedPage from '../ProtectedPage'
 
 export default function RegisterPage() {
   const [step, setStep] = useState<'name' | 'note' | 'amount'>('name')
@@ -125,51 +126,53 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">등록 페이지</h1>
-      <div className="flex flex-col gap-4 w-64">
-        <input
-          ref={nameInputRef}
-          className="p-2 border rounded"
-          placeholder="이름 입력"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => {
-            setStep('name')
-            focusInput(nameInputRef)
-          }}
-        />
-        <input
-          ref={noteInputRef}
-          className="p-2 border rounded"
-          placeholder="비고 입력"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => {
-            setStep('note')
-            focusInput(noteInputRef)
-          }}
-        />
-        {step === 'amount' && (
-          <>
-            <div className="text-sm text-gray-600">
-              금액 선택: 1 (₩10,000), 2 (₩50,000), 3 (₩100,000), 4 (₩500,000)
-            </div>
-            <input
-              ref={hiddenAmountInputRef}
-              onKeyDown={handleAmountKey}
-              className="opacity-0 h-0 w-0 pointer-events-none"
-              autoFocus
-            />
-            <div className="text-lg font-semibold">
-              금액: {formatCurrency(currentAmount)} ( {formatKoreanCurrency(currentAmount) } )
-            </div>
-          </>
-        )}
-        {isSubmitting && <p>등록 중...</p>}
+    <ProtectedPage isUserPage={false}>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold mb-4">등록 페이지</h1>
+        <div className="flex flex-col gap-4 w-64">
+          <input
+            ref={nameInputRef}
+            className="p-2 border rounded"
+            placeholder="이름 입력"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              setStep('name')
+              focusInput(nameInputRef)
+            }}
+          />
+          <input
+            ref={noteInputRef}
+            className="p-2 border rounded"
+            placeholder="비고 입력"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              setStep('note')
+              focusInput(noteInputRef)
+            }}
+          />
+          {step === 'amount' && (
+            <>
+              <div className="text-sm text-gray-600">
+                금액 선택: 1 (₩10,000), 2 (₩50,000), 3 (₩100,000), 4 (₩500,000)
+              </div>
+              <input
+                ref={hiddenAmountInputRef}
+                onKeyDown={handleAmountKey}
+                className="opacity-0 h-0 w-0 pointer-events-none"
+                autoFocus
+              />
+              <div className="text-lg font-semibold">
+                금액: {formatCurrency(currentAmount)} ( {formatKoreanCurrency(currentAmount) } )
+              </div>
+            </>
+          )}
+          {isSubmitting && <p>등록 중...</p>}
+        </div>
       </div>
-    </div>
+    </ProtectedPage>
   )
 }
