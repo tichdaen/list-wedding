@@ -14,8 +14,9 @@ type Contribution = {
     amount?: number
 }
 
-function formatKoreanCurrency(amount: number): string {
-    if (amount === 0) return '0원'
+function formatKoreanCurrency(amount: number | undefined): string {
+
+    if (amount === 0 || amount === undefined) return '0원'
 
     const units = ['', '만', '억', '조']
     let result = ''
@@ -54,7 +55,8 @@ export default function ContributionList({ isAdmin = false }: Props) {
     fetchData()
   }, [])
 
-  const toggleSelection = (id: number) => {
+  const toggleSelection = (id: number | undefined) => {
+    if ( id === undefined ) return
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     )
@@ -139,7 +141,7 @@ export default function ContributionList({ isAdmin = false }: Props) {
                 <td className="text-center">
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(item.id)}
+                    checked={selectedIds.includes(item.id || 0)}
                     onChange={() => toggleSelection(item.id)}
                   />
                 </td>
@@ -147,16 +149,6 @@ export default function ContributionList({ isAdmin = false }: Props) {
               <td className="px-2 py-2">{item.name}</td>
               <td className="px-2 py-2">{item.note}</td>
               <td className="px-2 py-2 text-center whitespace-nowrap">{formatKoreanCurrency(item.amount)}</td>
-              {isAdmin && (
-                <td>
-                  <input
-                    className="p-1 text-xs rounded bg-white dark:bg-gray-700 border"
-                    placeholder="태그 입력"
-                    value={tags[item.id] || item.tag || ''}
-                    onChange={(e) => handleTagChange(item.id, e.target.value)}
-                  />
-                </td>
-              )}
             </tr>
           ))}
         </tbody>
