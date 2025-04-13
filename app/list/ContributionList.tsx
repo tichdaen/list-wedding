@@ -38,6 +38,7 @@ export default function ContributionList({ isAdmin = false }: Props) {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [tags, setTags] = useState<Record<number, string>>({})
   const [total, setTotal] = useState(0)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null)
 
   // fetch, total 계산은 동일하므로 재사용
   useEffect(() => {
@@ -59,6 +60,36 @@ export default function ContributionList({ isAdmin = false }: Props) {
     )
   }
 
+  const toggleSort = () => {
+    console.log(`sortOrder : ${sortOrder}`)
+    const newOrder = sortOrder === null ? 'asc' : (sortOrder === 'asc' ? 'desc' : null)
+    setSortOrder(newOrder)
+
+    if ( newOrder === null ) {
+      const original = [...contributions].sort((a, b) => {
+        return (a.id ?? 0) - (b.id ?? 0)
+      })
+
+      setContributions(original)
+      return
+    }
+
+    const sorted = [...contributions].sort((a, b) => {
+      if ( sortOrder === 'asc' ) return (a.amount ?? 0) - (b.amount ?? 0)
+      return (b.amount ?? 0) - (a.amount ?? 0)
+    })
+
+    setContributions(sorted)
+  }
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: 'KRW',
+      maximumFractionDigits: 0,
+    }).format(value)
+  }
+
   const handleTagChange = (id: number, tag: string) => {
     setTags((prev) => ({ ...prev, [id]: tag }))
   }
@@ -73,7 +104,6 @@ export default function ContributionList({ isAdmin = false }: Props) {
       await supabase.from('contributions').update({ tag: update.tag }).eq('id', update.id)
     }
 
-    alert('태그 저장 완료!')
   }
 
   return (
@@ -87,7 +117,7 @@ export default function ContributionList({ isAdmin = false }: Props) {
       }
       {/* 상단 고정 전체 금액 */}
       <div className="fixed top-0 left-0 right-0 bg-[var(--background)] text-[var(--foreground)] z-10 border-b p-4 shadow-md">
-        <h2 className="text-xl font-bold text-center">총 금액: {formatKoreanCurrency(total)}</h2>
+        <h2 className="text-xl font-bold text-center">총 금액: {formatCurrency(total)} ({formatKoreanCurrency(total)})</h2>
       </div>
 
       <table className="w-full border-separate border-spacing-y-2 text-sm">
@@ -96,7 +126,9 @@ export default function ContributionList({ isAdmin = false }: Props) {
             {isAdmin && <th />}
             <th>이름</th>
             <th>비고</th>
-            <th>금액</th>
+            <th className="cursor-pointer" onClick={toggleSort}>
+              금액 { sortOrder === 'asc' ? '▲' : sortOrder === 'desc' ? '▼' : '' }
+            </th>
             {isAdmin && <th>태그</th>}
           </tr>
         </thead>
@@ -114,7 +146,7 @@ export default function ContributionList({ isAdmin = false }: Props) {
               )}
               <td className="px-2 py-2">{item.name}</td>
               <td className="px-2 py-2">{item.note}</td>
-              <td className="px-2 py-2 text-right">{formatKoreanCurrency(item.amount)}</td>
+              <td className="px-2 py-2 text-center whitespace-nowrap">{formatKoreanCurrency(item.amount)}</td>
               {isAdmin && (
                 <td>
                   <input
